@@ -1,31 +1,44 @@
 ﻿/*
 A survey was done of current club members and we would like to restructure the data to a more organized and usable form.
 In this project, we will 
-	1-Identify and remove any duplicate entries in the dataset.
-	2-Remove any extraneous spaces or invalid characters that could interfere with data analysis.
-	3-Split or combine values as necessary to better represent the underlying data.
-	4-Ensure that specific values (such as ages or dates) fall within expected ranges.
-	5-Check for and address any outliers or unusual values that could skew the analysis.
-	6-Correct any misspelled words or input errors that may impact the accuracy of the data.
-	7-Add new rows or columns to the dataset as needed to provide additional relevant information.
-	8-Identify and handle any null or empty values to avoid issues with data analysis.
+	1. Identify and remove any duplicate entries in the dataset.
+	2. Remove any extraneous spaces or invalid characters that could interfere with data analysis.
+	3. Split or combine values as necessary to better represent the underlying data.
+	4. Ensure that specific values (such as ages or dates) fall within expected ranges.
+	5. Check for and address any outliers or unusual values that could skew the analysis.
+	6. Correct any misspelled words or input errors that may impact the accuracy of the data.
+	7. Add new rows or columns to the dataset as needed to provide additional relevant information.
+	8. Identify and handle any null or empty values to avoid issues with data analysis.
 */
 
 --Examining the initial rows of data in their original form can provide valuable insights, so lets take a look at the first few rows.
 SELECT TOP 10 *
 FROM MEMBER_INFOR
+GO
 
--- check  the validity of an email 
-SELECT email
-FROM MEMBER_INFOR
-WHERE email LIKE '%@%.%' -- Check if there is at least one character '@' and one character '.' in the value.
-    AND email NOT LIKE '%@%@%' -- Check if there are no two consecutive '@' characters.
-    AND email NOT LIKE '%..%' -- Check if there are no two consecutive '.' characters.
-    AND PATINDEX('%[^a-zA-Z0-9.@_-]%', email) = 0 -- Check if there are no invalid characters other than letters, numbers, special characters '@', '.', '_', and '-'.
-GO 
+-- check the validity of an email 
+WITH Check_email AS(
+	SELECT 
+		email
+	FROM 
+		MEMBER_INFOR
+	WHERE 
+		email LIKE '%@%.%' -- Check if there is at least one character '@' and one character '.' in the value.
+		AND email NOT LIKE '%@%@%' -- Check if there are no two consecutive '@' characters.
+		AND email NOT LIKE '%..%' -- Check if there are no two consecutive '.' characters.
+		AND PATINDEX('%[^a-zA-Z0-9.@_-]%', email) = 0 -- Check if there are no invalid characters other than letters, numbers, special characters '@', '.', '_', and 
+)
+SELECT
+	COUNT(email) AS 'result'
+FROM 
+	MEMBER_INFOR
+WHERE 
+	email NOT IN ( SELECT email FROM Check_email)
+GO
 
 --Creating a function to remove special characters mixed in a first name 
-CREATE FUNCTION dbo.Remove_SpecialCharacters( @str VARCHAR(MAX))
+CREATE FUNCTION 
+	dbo.Remove_SpecialCharacters( @str VARCHAR(MAX))
 RETURNS VARCHAR(MAX) AS
 BEGIN
 	SET @str = SUBSTRING(TRIM(LOWER(@str)),1,PATINDEX('% %', TRIM(LOWER(@str))) - 1)
@@ -116,16 +129,19 @@ GO
 
 --Let's take a look at our cleaned table data.
 SELECT TOP 10 * FROM #CLEANED_MEMBER_INFOR
+GO
 
 --Now that the data has been cleaned, let's search for any duplicate entries and determine the total count of records
 SELECT COUNT(*)AS TOTAL
 FROM #CLEANED_MEMBER_INFOR
+GO
 
 --All members must have a unique email address to join. Lets try to find duplicate entries.
 SELECT MEMBER_EMAIL, COUNT(*) QUANTIY
 FROM #CLEANED_MEMBER_INFOR
 GROUP BY MEMBER_EMAIL
 HAVING COUNT(*) > 1
+GO
 
 --Now, there are 10 duplicate entries, let's delete them
 DELETE FROM 
@@ -137,12 +153,14 @@ WHERE
 		FROM #CLEANED_MEMBER_INFOR
 		GROUP BY MEMBER_EMAIL	
 	)
+GO
 
 -- What is the record after detetion?
 SELECT 
 	COUNT(*) AS QUANTITY
 FROM 
 	#CLEANED_MEMBER_INFOR
+GO
 
 --Let's find out how many types of maritial statuses there are and check the spelling error.
 
@@ -155,9 +173,12 @@ GO
 
 --As we can see, we have a spelling error for 4 records.  Let's correct the error.
 
-UPDATE #CLEANED_MEMBER_INFOR
-SET MARITIAL_STATUS  = 'divorced'
-WHERE MARITIAL_STATUS = 'divored'
+UPDATE 
+	#CLEANED_MEMBER_INFOR
+SET 
+	MARITIAL_STATUS  = 'divorced'
+WHERE 
+	MARITIAL_STATUS = 'divored'
 GO
 
 --Now, let's check the records
