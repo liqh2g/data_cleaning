@@ -28,7 +28,7 @@ CREATE TABLE MEMBER_INFOR(
 	membership_date varchar(100) 
 )
 go
-
+-- insert values into table from csv file using BULK INSERT
 BULK INSERT MEMBER_INFOR
 FROM 'D:\SQL\club_member_info.csv'
 WITH(	
