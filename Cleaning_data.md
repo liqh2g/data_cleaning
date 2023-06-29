@@ -1,4 +1,4 @@
-﻿## SQL DATA CLEANING:🐱‍👤🐱‍👤🐱‍👤
+﻿## SQL DATA CLEANING:
 - This is a project in which SQL will be used for data cleaning. The aim of the project is to make the data more accurate and reliable by removing any inconsistencies or errors present in the database using SQL commands.
 - The data from a survey conducted among current club members needs to be restructured in order to enhance its organization and usability
 - In this project, we will:
